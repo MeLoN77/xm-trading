@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: trading-platform-xm-api
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "trade_xm_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  tests:
+    build: .
+    container_name: trading-platform-xm-tests
+    depends_on:
+      - api
+    entrypoint: >
+      sh -c "while ! curl -sSf http://api:8000/docs > /dev/null; do sleep 1; done;
+             pytest --maxfail=1 ./tests/ --disable-warnings --html=reports/report.html"
